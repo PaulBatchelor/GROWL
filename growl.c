@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <soundpipe.h>
 #include <sporth.h>
+#include "growl.h"
 
 static const SPFLOAT formants[] = {
 
@@ -14,15 +15,7 @@ static const SPFLOAT formants[] = {
 378.0, 997.0, 2343.0, 3357.0,
 };
 
-typedef struct {
-    SPFLOAT x;
-    SPFLOAT y;
-    sp_reson *filt[4];
-    sp_bal *bal;
-    sp_dcblock *dcblk;
-} growl_d;
-
-static void formant_create(sp_data *sp, growl_d **form)
+void formant_create(growl_d **form)
 {
     int i;
     *form = malloc(sizeof(growl_d));
@@ -35,7 +28,7 @@ static void formant_create(sp_data *sp, growl_d **form)
     sp_dcblock_create(&fp->dcblk);
 }
 
-static void formant_init(sp_data *sp, growl_d *form) 
+void formant_init(sp_data *sp, growl_d *form) 
 {
     int i;
     for(i = 0; i < 4; i++) {
@@ -50,7 +43,7 @@ static void formant_init(sp_data *sp, growl_d *form)
     form->y = 0;
 }
 
-static void formant_compute(sp_data *sp, growl_d *form, SPFLOAT *in, SPFLOAT *out)
+void formant_compute(sp_data *sp, growl_d *form, SPFLOAT *in, SPFLOAT *out)
 {
     int i;
     SPFLOAT tmp_in = *in;
@@ -82,7 +75,7 @@ static void formant_compute(sp_data *sp, growl_d *form, SPFLOAT *in, SPFLOAT *ou
     sp_dcblock_compute(sp, form->dcblk, &tmp_out, out);
 }
 
-static void growl_destroy(sp_data *sp, growl_d **form)
+void growl_destroy(growl_d **form)
 {
     int i;
     growl_d *fd = *form;
@@ -94,6 +87,8 @@ static void growl_destroy(sp_data *sp, growl_d **form)
     free(*form);
 }
 
+#ifdef BUILD_PLUGIN
+
 static int growl(plumber_data *pd, sporth_stack *stack, void **ud)
 {
     SPFLOAT in;
@@ -103,7 +98,7 @@ static int growl(plumber_data *pd, sporth_stack *stack, void **ud)
     growl_d *form;
     switch(pd->mode) {
         case PLUMBER_CREATE:
-            formant_create(pd->sp, &form);
+            formant_create(&form);
             *ud = (void *)form; 
             y = sporth_stack_pop_float(stack);
             x = sporth_stack_pop_float(stack);
@@ -130,7 +125,7 @@ static int growl(plumber_data *pd, sporth_stack *stack, void **ud)
             break;
         case PLUMBER_DESTROY:
             form = *ud;
-            growl_destroy(pd->sp, &form);
+            growl_destroy(&form);
             break;
         default: break;
     }
@@ -141,3 +136,5 @@ plumber_dyn_func sporth_return_ugen()
 {
     return growl;
 }
+
+#endif
