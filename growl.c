@@ -51,7 +51,6 @@ void growl_compute(sp_data *sp, growl_d *growl, SPFLOAT *in, SPFLOAT *out)
     SPFLOAT freq = 0.0;
     SPFLOAT *x = &growl->x;
     SPFLOAT *y = &growl->y;
-    *out = 0.0;
 
     for(i = 0; i < 4; i++) {
         tf = (*x) * 
