@@ -1,7 +1,8 @@
 # GROWL
 
 GROWL is an approximate implementation of the 
-formant filter used in the iOS vocal synthesizer, HOWL. 
+formant filter used in the iOS vocal synthesizer, 
+[HOWL](https://github.com/dclelland/HOWL). 
 
 The GROWL algorithm itself depends on 
 [Soundpipe](http://www.github.com/paulbatchelor/soundpipe.git).
