@@ -2,7 +2,7 @@
 #include <soundpipe.h>
 #include "growl.h"
 
-static const SPFLOAT formants[] = {
+static const SPFLOAT growlants[] = {
 /* ae: top right  */
 844.0, 1656.0, 2437.0, 3704.0,
 /* a: top left */
@@ -13,11 +13,11 @@ static const SPFLOAT formants[] = {
 378.0, 997.0, 2343.0, 3357.0,
 };
 
-void growl_create(growl_d **form)
+void growl_create(growl_d **growl)
 {
     int i;
-    *form = malloc(sizeof(growl_d));
-    growl_d *fp = *form;
+    *growl = malloc(sizeof(growl_d));
+    growl_d *fp = *growl;
     for(i = 0; i < 4; i++) {
         sp_reson_create(&fp->filt[i]);
     }
@@ -26,22 +26,22 @@ void growl_create(growl_d **form)
     sp_dcblock_create(&fp->dcblk);
 }
 
-void growl_init(sp_data *sp, growl_d *form) 
+void growl_init(sp_data *sp, growl_d *growl) 
 {
     int i;
     for(i = 0; i < 4; i++) {
-        sp_reson_init(sp, form->filt[i]);
-        form->filt[i]->freq = formants[i];
-        form->filt[i]->bw = 
-            (formants[i] * 0.02) + 50;
+        sp_reson_init(sp, growl->filt[i]);
+        growl->filt[i]->freq = growlants[i];
+        growl->filt[i]->bw = 
+            (growlants[i] * 0.02) + 50;
     }
-    sp_bal_init(sp, form->bal);
-    sp_dcblock_init(sp, form->dcblk);
-    form->x = 0;
-    form->y = 0;
+    sp_bal_init(sp, growl->bal);
+    sp_dcblock_init(sp, growl->dcblk);
+    growl->x = 0;
+    growl->y = 0;
 }
 
-void growl_compute(sp_data *sp, growl_d *form, SPFLOAT *in, SPFLOAT *out)
+void growl_compute(sp_data *sp, growl_d *growl, SPFLOAT *in, SPFLOAT *out)
 {
     int i;
     SPFLOAT tmp_in = *in;
@@ -49,40 +49,40 @@ void growl_compute(sp_data *sp, growl_d *form, SPFLOAT *in, SPFLOAT *out)
     SPFLOAT tf = 0.0;
     SPFLOAT bf = 0.0;
     SPFLOAT freq = 0.0;
-    SPFLOAT *x = &form->x;
-    SPFLOAT *y = &form->y;
+    SPFLOAT *x = &growl->x;
+    SPFLOAT *y = &growl->y;
     *out = 0.0;
 
     for(i = 0; i < 4; i++) {
         tf = (*x) * 
-            (formants[i + 3] - formants[i]) + 
-            formants[i];
+            (growlants[i + 3] - growlants[i]) + 
+            growlants[i];
         bf = (*x) * 
-            (formants[i + 11] - formants[i + 7]) + 
-            formants[i + 7];
+            (growlants[i + 11] - growlants[i + 7]) + 
+            growlants[i + 7];
         freq = (*y) * (bf - tf) + tf;
-        form->filt[i]->freq = freq; 
-        form->filt[i]->bw = 
+        growl->filt[i]->freq = freq; 
+        growl->filt[i]->bw = 
             ((freq * 0.02) + 50);
-        sp_reson_compute(sp, form->filt[i], &tmp_in, &tmp_out);
+        sp_reson_compute(sp, growl->filt[i], &tmp_in, &tmp_out);
         tmp_in = tmp_out;
     }
     
-    sp_bal_compute(sp, form->bal, &tmp_out, in, out);
+    sp_bal_compute(sp, growl->bal, &tmp_out, in, out);
     tmp_out = *out;
-    sp_dcblock_compute(sp, form->dcblk, &tmp_out, out);
+    sp_dcblock_compute(sp, growl->dcblk, &tmp_out, out);
 }
 
-void growl_destroy(growl_d **form)
+void growl_destroy(growl_d **growl)
 {
     int i;
-    growl_d *fd = *form;
+    growl_d *fd = *growl;
     for(i = 0; i < 4; i++) {
         sp_reson_destroy(&fd->filt[i]);
     }
     sp_bal_destroy(&fd->bal);
     sp_dcblock_destroy(&fd->dcblk);
-    free(*form);
+    free(*growl);
 }
 
 #ifdef BUILD_PLUGIN
@@ -94,37 +94,37 @@ static int growl(plumber_data *pd, sporth_stack *stack, void **ud)
     SPFLOAT x = 0;
     SPFLOAT y = 0;
     SPFLOAT out = 0;
-    growl_d *form;
+    growl_d *growl;
     switch(pd->mode) {
         case PLUMBER_CREATE:
-            growl_create(&form);
-            *ud = (void *)form; 
+            growl_create(&growl);
+            *ud = (void *)growl; 
             y = sporth_stack_pop_float(stack);
             x = sporth_stack_pop_float(stack);
             in = sporth_stack_pop_float(stack);
             sporth_stack_push_float(stack, 0);
             break;
         case PLUMBER_INIT:
-            form = *ud;
-            growl_init(pd->sp, form);
+            growl = *ud;
+            growl_init(pd->sp, growl);
             y = sporth_stack_pop_float(stack);
             x = sporth_stack_pop_float(stack);
             in = sporth_stack_pop_float(stack);
             sporth_stack_push_float(stack, 0);
             break;
         case PLUMBER_COMPUTE:
-            form = *ud;
+            growl = *ud;
             y = sporth_stack_pop_float(stack);
             x = sporth_stack_pop_float(stack);
             in = sporth_stack_pop_float(stack);
-            form->x = x;
-            form->y = y;
-            growl_compute(pd->sp, form, &in, &out);
+            growl->x = x;
+            growl->y = y;
+            growl_compute(pd->sp, growl, &in, &out);
             sporth_stack_push_float(stack, out);
             break;
         case PLUMBER_DESTROY:
-            form = *ud;
-            growl_destroy(&form);
+            growl = *ud;
+            growl_destroy(&growl);
             break;
         default: break;
     }
