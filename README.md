@@ -15,3 +15,7 @@ This can be compiled by simply running "make".
 To hear what the filter sounds like, run the Sporth patch 
 included with "sporth test.sp". This will generated an audio
 file called test.wav that you can then listen to.
+
+The code is also ready to be used just like any other soundpipe
+module. Just drop the header and c file into your project, and
+you should be good to go!

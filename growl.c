@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include <soundpipe.h>
-#include <sporth.h>
 #include "growl.h"
 
 static const SPFLOAT formants[] = {
@@ -88,6 +87,7 @@ void growl_destroy(growl_d **form)
 }
 
 #ifdef BUILD_PLUGIN
+#include <sporth.h>
 
 static int growl(plumber_data *pd, sporth_stack *stack, void **ud)
 {
