@@ -3,11 +3,10 @@
 #include "growl.h"
 
 static const SPFLOAT formants[] = {
-
-/* a: top left */
-768.0, 1333.0, 2522.0, 3687.0,
 /* ae: top right  */
 844.0, 1656.0, 2437.0, 3704.0,
+/* a: top left */
+768.0, 1333.0, 2522.0, 3687.0,
 /* i: bottom left */
 324.0, 2985.0, 3329.0, 3807.0,
 /* u: bottom right */
@@ -59,8 +58,8 @@ void formant_compute(sp_data *sp, growl_d *form, SPFLOAT *in, SPFLOAT *out)
             (formants[i + 3] - formants[i]) + 
             formants[i];
         bf = (*x) * 
-            (formants[i + 7] - formants[i]) + 
-            formants[i + 11];
+            (formants[i + 11] - formants[i + 7]) + 
+            formants[i + 7];
         freq = (*y) * (bf - tf) + tf;
         form->filt[i]->freq = freq; 
         form->filt[i]->bw = 
