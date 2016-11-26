@@ -2,7 +2,7 @@
 #include <soundpipe.h>
 #include "growl.h"
 
-static const SPFLOAT growlants[] = {
+static const SPFLOAT formants[] = {
 /* ae: top right  */
 844.0, 1656.0, 2437.0, 3704.0,
 /* a: top left */
@@ -31,9 +31,9 @@ void growl_init(sp_data *sp, growl_d *growl)
     int i;
     for(i = 0; i < 4; i++) {
         sp_reson_init(sp, growl->filt[i]);
-        growl->filt[i]->freq = growlants[i];
+        growl->filt[i]->freq = formants[i];
         growl->filt[i]->bw = 
-            (growlants[i] * 0.02) + 50;
+            (formants[i] * 0.02) + 50;
     }
     sp_bal_init(sp, growl->bal);
     sp_dcblock_init(sp, growl->dcblk);
@@ -55,11 +55,11 @@ void growl_compute(sp_data *sp, growl_d *growl, SPFLOAT *in, SPFLOAT *out)
 
     for(i = 0; i < 4; i++) {
         tf = (*x) * 
-            (growlants[i + 3] - growlants[i]) + 
-            growlants[i];
+            (formants[i + 3] - formants[i]) + 
+            formants[i];
         bf = (*x) * 
-            (growlants[i + 11] - growlants[i + 7]) + 
-            growlants[i + 7];
+            (formants[i + 11] - formants[i + 7]) + 
+            formants[i + 7];
         freq = (*y) * (bf - tf) + tf;
         growl->filt[i]->freq = freq; 
         growl->filt[i]->bw = 
