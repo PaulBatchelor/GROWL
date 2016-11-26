@@ -13,7 +13,6 @@ _growl fe
 # Add a line in the beginning to avoid click caused by filter
 tick 0 0.03 1 line * 
 
-dup
 _growl fc
 )
 
