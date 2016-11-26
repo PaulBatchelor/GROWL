@@ -13,7 +13,7 @@ static const SPFLOAT formants[] = {
 378.0, 997.0, 2343.0, 3357.0,
 };
 
-void formant_create(growl_d **form)
+void growl_create(growl_d **form)
 {
     int i;
     *form = malloc(sizeof(growl_d));
@@ -26,7 +26,7 @@ void formant_create(growl_d **form)
     sp_dcblock_create(&fp->dcblk);
 }
 
-void formant_init(sp_data *sp, growl_d *form) 
+void growl_init(sp_data *sp, growl_d *form) 
 {
     int i;
     for(i = 0; i < 4; i++) {
@@ -41,7 +41,7 @@ void formant_init(sp_data *sp, growl_d *form)
     form->y = 0;
 }
 
-void formant_compute(sp_data *sp, growl_d *form, SPFLOAT *in, SPFLOAT *out)
+void growl_compute(sp_data *sp, growl_d *form, SPFLOAT *in, SPFLOAT *out)
 {
     int i;
     SPFLOAT tmp_in = *in;
@@ -97,7 +97,7 @@ static int growl(plumber_data *pd, sporth_stack *stack, void **ud)
     growl_d *form;
     switch(pd->mode) {
         case PLUMBER_CREATE:
-            formant_create(&form);
+            growl_create(&form);
             *ud = (void *)form; 
             y = sporth_stack_pop_float(stack);
             x = sporth_stack_pop_float(stack);
@@ -106,7 +106,7 @@ static int growl(plumber_data *pd, sporth_stack *stack, void **ud)
             break;
         case PLUMBER_INIT:
             form = *ud;
-            formant_init(pd->sp, form);
+            growl_init(pd->sp, form);
             y = sporth_stack_pop_float(stack);
             x = sporth_stack_pop_float(stack);
             in = sporth_stack_pop_float(stack);
@@ -119,7 +119,7 @@ static int growl(plumber_data *pd, sporth_stack *stack, void **ud)
             in = sporth_stack_pop_float(stack);
             form->x = x;
             form->y = y;
-            formant_compute(pd->sp, form, &in, &out);
+            growl_compute(pd->sp, form, &in, &out);
             sporth_stack_push_float(stack, out);
             break;
         case PLUMBER_DESTROY:
